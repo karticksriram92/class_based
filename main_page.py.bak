@@ -1,60 +1,84 @@
 from tkinter import *
 import tkinter as tk
+from tkinter import ttk
 import doctors_page
+import layout
+
+from PIL import Image, ImageTk
 
 from threading import Timer
 
-class basic_layout(tk.Tk):
+class main_page_layout(layout.main_layout):
     def __init__(self):
         super().__init__()
-        self.state('zoomed')
-        self.resizable(0,0)
-
-        swidth=self.winfo_screenwidth()
-        sheight=self.winfo_screenheight()
-
-        self.main_root_frame=Frame(self,bg='green')
-        self.top_root_frame=Frame(self,bg='white')
-
-        self.top_root_frame.place(x=10,y=0,width=swidth-20,height=50,anchor='nw')
-        self.main_root_frame.place(x=10,y=50,width=swidth-20,height=sheight-85,anchor='nw')
-
-
-class main_layout(basic_layout):
+        self.top_mainpage_frame=Frame(self.top_overlay_frame, bg='black')
+        self.side_mainpage_frame=Frame(self.side_overlay_frame, bg='white', borderwidth=4, relief='ridge')
+        self.center_mainpage_frame=Frame(self.center_overlay_frame, bg='white', relief='groove')
+                
+        self.side_mainpage_frame.pack(fill=BOTH, expand="True")
+        
+        #prevent child to change parent size
+        self.side_mainpage_frame.pack_propagate(False)
+        
+        self.top_mainpage_frame.pack(fill=BOTH, expand="True")
+        self.center_mainpage_frame.pack(fill=BOTH, expand="True")
+        
+        
+class main_page_display(main_page_layout):
     def __init__(self):
+        #it will call parent class again so it will make another window, so either call this class at bottom(can use super() then) or dont call super()
         super().__init__()
+        #self.show_img()
+        button= Button(self.center_mainpage_frame , command=self.change_page)
+        button.pack()
+        display_image(self.side_mainpage_frame)
+        #print(self.layout.swidth)
         
-        self.top_overlay_frame=Frame(self.top_root_frame, bg='red')
-        self.main_overlay_frame=Frame(self.main_root_frame, bg='blue')
-        
-        
-        side_frame=Frame(self.main_overlay_frame, bg = 'white',width=10, height=100)
-        center_frame=Frame(self.main_overlay_frame, bg = 'pink',width=10, height=100)
-        
-        # t=Timer(5.0, self.change_page)
-        # t.start()
-        
-        
-        self.top_overlay_frame.pack(fill=BOTH, expand="true")
-        self.main_overlay_frame.pack(fill=BOTH, expand="true")
-        side_frame.grid(row=0, column=0, sticky='nsew')
-        center_frame.grid(row=0, column=1, sticky='nsew')
-        
-        self.main_overlay_frame.grid_columnconfigure(0, weight=1)
-        self.main_overlay_frame.grid_columnconfigure(1, weight=3)
-        self.main_overlay_frame.grid_rowconfigure(0, weight=1)
-        self.main_overlay_frame.grid_rowconfigure(0, weight=1)
-        
-
+    # def get_img(self):
+        # img_file=Image.open("C:/Users/kartick/Downloads/test.png")
+        # size_fit=(int((self.swidth/4)-8), int(self.sheight-93))
+        # resized_img_file=img_file.resize(size_fit ,Image.ANTIALIAS)
+        # self.img=ImageTk.PhotoImage(resized_img_file)
+        # return self.img
+    
+    # def show_img(self):
+        # img = self.get_img()
+        # label=Label(self.side_mainpage_frame,image=self.img)
+        # label.pack(fill=BOTH, expand="True")
+    
     def change_page(self):
-        for widgets in self.main_root_frame.winfo_children():
+        for widgets in self.center_mainpage_frame.winfo_children():
             widgets.destroy()
-        #doctors_page.show_frame(self,self.main_root_frame)
+        for widgets in self.side_mainpage_frame.winfo_children():
+            widgets.destroy()
+        doctors_page.show_top_frame(self,self.top_mainpage_frame)
+        doctors_page.show_side_frame(self,self.side_mainpage_frame)
+        doctors_page.show_center_frame(self,self.center_mainpage_frame)
+        
         
     def run(self):
         self.mainloop()
-
+        
+        
+class display_image(ttk.Label):
+    def __init__(self, container):
+        show_img(container)
+    
+    def get_img(self):
+        img_file=Image.open("C:/Users/kartick/Downloads/test.png")
+        size_fit=(int((self.swidth/4)-8), int(self.sheight-93))
+        resized_img_file=img_file.resize(size_fit ,Image.ANTIALIAS)
+        self.img=ImageTk.PhotoImage(resized_img_file)
+        return self.img
+    
+    def show_img(self):
+        img = self.get_img()
+        label=Label(self,image=self.img)
+        # button= Button(self.center_mainpage_frame , command=self.change_page)
+        # button.pack()
+        label.pack(fill=BOTH, expand="True")
 
 if __name__ == "__main__":
-    app = main_layout()
+    #this should be the entry of this program.
+    app = main_page_display()
     app.run()
